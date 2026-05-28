@@ -1,62 +1,754 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEPCO APK App</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            text-align: center;
-            max-width: 500px;
-        }
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-        p {
-            color: #666;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-        button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        button:hover {
-            transform: scale(1.05);
-        }
-    </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>Saleem Electricity Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0a0b0d;
+  --surface: #111317;
+  --surface2: #181b20;
+  --border: #1f2229;
+  --border2: #2a2f3a;
+  --amber: #f59e0b;
+  --amber-dim: rgba(245,158,11,0.12);
+  --amber-glow: rgba(245,158,11,0.25);
+  --blue: #3b82f6;
+  --blue-dim: rgba(59,130,246,0.12);
+  --green: #10b981;
+  --green-dim: rgba(16,185,129,0.12);
+  --red: #ef4444;
+  --red-dim: rgba(239,68,68,0.12);
+  --yellow: #eab308;
+  --txt: #e2e8f0;
+  --txt-muted: #64748b;
+  --txt-dim: #94a3b8;
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+
+body.light-theme {
+  --bg: #f8f9fa;
+  --surface: #ffffff;
+  --surface2: #f3f4f6;
+  --border: #e5e7eb;
+  --border2: #d1d5db;
+  --amber: #f59e0b;
+  --amber-dim: rgba(245,158,11,0.12);
+  --amber-glow: rgba(245,158,11,0.25);
+  --blue: #3b82f6;
+  --blue-dim: rgba(59,130,246,0.12);
+  --green: #10b981;
+  --green-dim: rgba(16,185,129,0.12);
+  --red: #ef4444;
+  --red-dim: rgba(239,68,68,0.12);
+  --yellow: #eab308;
+  --txt: #1f2937;
+  --txt-muted: #6b7280;
+  --txt-dim: #4b5563;
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overscroll-behavior:none;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font-size:15px;line-height:1.5;transition:background-color 0.3s,color 0.3s;}
+.mono{font-family:'DM Mono',monospace;}
+.syne{font-family:'Syne',sans-serif;}
+
+/* ── LOCK SCREEN ── */
+#lock{display:flex;height:100dvh;align-items:center;justify-content:center;background:var(--bg);position:relative;overflow:hidden;}
+#lock::before{content:'';position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(245,158,11,0.08) 0%,transparent 70%);border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
+.auth-wrap{display:flex;flex-direction:column;align-items:center;gap:32px;width:100%;max-width:340px;padding:24px;}
+.auth-logo{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.auth-logo .bolt{font-size:2.5rem;filter:drop-shadow(0 0 20px var(--amber));}
+.auth-logo h1{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;letter-spacing:-0.02em;}
+.auth-logo span{font-size:0.8rem;color:var(--txt-muted);letter-spacing:0.1em;text-transform:uppercase;}
+.auth-box{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:28px;width:100%;}
+.auth-box h2{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:20px;color:var(--txt-dim);}
+.pin-input{width:100%;padding:16px 18px;background:var(--bg);border:1.5px solid var(--border2);border-radius:var(--radius-sm);color:var(--txt);font-size:1.1rem;font-family:'DM Mono',monospace;letter-spacing:0.05em;outline:none;transition:border-color 0.2s,box-shadow 0.2s;-webkit-appearance:none;-moz-appearance:none;appearance:none;}
+.pin-input:focus{border-color:var(--amber);box-shadow:0 0 0 3px var(--amber-dim);}
+.btn-unlock{margin-top:14px;width:100%;padding:16px;background:var(--amber);color:#0a0b0d;border:none;border-radius:var(--radius-sm);font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;transition:all 0.2s;-webkit-appearance:none;-moz-appearance:none;appearance:none;}
+.btn-unlock:hover{background:#fbbf24;transform:translateY(-1px);box-shadow:0 8px 24px rgba(245,158,11,0.35);}
+.btn-unlock:active{transform:translateY(0);}
+#err{color:var(--red);font-size:0.85rem;text-align:center;margin-top:12px;min-height:20px;}
+
+/* ── APP SHELL ── */
+#app{display:none;flex-direction:column;height:100dvh;overflow:hidden;}
+
+/* ── LOADING SCREEN ── */
+#loadingScreen{display:none;position:fixed;inset:0;background:var(--bg);justify-content:center;align-items:center;flex-direction:column;gap:20px;z-index:2000;}
+#loadingScreen.show{display:flex;}
+.spinner{width:50px;height:50px;border:3px solid var(--border2);border-top-color:var(--amber);border-radius:50%;animation:spin 1s linear infinite;}
+.loading-text{color:var(--txt-muted);font-size:0.95rem;letter-spacing:0.05em;}
+
+/* ── HEADER ── */
+.app-header{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--surface);border-bottom:1px solid var(--border);gap:12px;transition:background 0.3s;}
+.header-brand{display:flex;align-items:center;gap:10px;}
+.header-brand .bolt{font-size:1.3rem;filter:drop-shadow(0 0 8px var(--amber));}
+.header-brand h3{font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;letter-spacing:-0.01em;}
+.header-right{display:flex;align-items:center;gap:10px;}
+.sync-btn{display:flex;align-items:center;gap:6px;padding:9px 14px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--txt-dim);cursor:pointer;font-size:0.85rem;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.sync-btn:hover{border-color:var(--border2);color:var(--txt);background:var(--border);}
+.sync-btn.spinning .sync-icon{animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sync-icon{display:inline-block;font-size:0.9rem;}
+.theme-btn{padding:9px 14px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--txt-muted);cursor:pointer;font-size:0.85rem;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.theme-btn:hover{border-color:var(--amber);color:var(--amber);}
+
+/* ── SCROLLABLE CONTENT ── */
+.app-scroll{flex:1;overflow-y:auto;overscroll-behavior:contain;}
+.app-scroll::-webkit-scrollbar{width:4px;}
+.app-scroll::-webkit-scrollbar-track{background:transparent;}
+.app-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+
+/* ── TOOLBAR ── */
+.toolbar{padding:16px 20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.search-wrap{flex:1;min-width:200px;position:relative;}
+.search-wrap .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:0.9rem;color:var(--txt-muted);}
+.search-wrap input{width:100%;padding:12px 14px 12px 38px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--txt);font-family:'DM Sans',sans-serif;font-size:0.95rem;outline:none;transition:border-color 0.2s;}
+.search-wrap input:focus{border-color:var(--amber);}
+.search-wrap input::placeholder{color:var(--txt-muted);}
+.toolbar-right{display:flex;gap:8px;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:12px 18px;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.9rem;cursor:pointer;border:none;transition:all 0.15s;-webkit-appearance:none;-moz-appearance:none;appearance:none;}
+.btn:active{transform:scale(0.97);}
+.btn-primary{background:var(--amber);color:#0a0b0d;}
+.btn-primary:hover{background:#fbbf24;}
+.btn-secondary{background:var(--surface2);color:var(--txt-dim);border:1px solid var(--border2);}
+.btn-secondary:hover{color:var(--txt);border-color:var(--border2);background:var(--border);}
+.btn-green{background:var(--green-dim);color:var(--green);border:1px solid rgba(16,185,129,0.3);}
+.btn-green:hover{background:rgba(16,185,129,0.2);}
+.btn-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,0.3);}
+.btn-danger:hover{background:rgba(239,68,68,0.2);}
+.btn-sm{padding:8px 12px;font-size:0.82rem;}
+.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+
+/* ── SUMMARY STRIP ── */
+.summary-section{padding:0 20px 4px;}
+.summary-banner{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;gap:14px;transition:background-color 0.3s,border-color 0.3s;}
+.summary-top{display:flex;align-items:center;justify-content:space-between;}
+.summary-label{font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--txt-muted);}
+.summary-stats{display:flex;gap:8px;flex-wrap:wrap;}
+.stat-pill{flex:1;min-width:90px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 12px;display:flex;flex-direction:column;gap:3px;transition:background-color 0.3s,border-color 0.3s;}
+.stat-pill .sp-val{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;letter-spacing:-0.03em;}
+.stat-pill .sp-lbl{font-size:0.72rem;color:var(--txt-muted);text-transform:uppercase;letter-spacing:0.06em;}
+.stat-pill.amber .sp-val{color:var(--amber);}
+.stat-pill.green .sp-val{color:var(--green);}
+.stat-pill.blue .sp-val{color:var(--blue);}
+.stat-pill.white .sp-val{color:var(--txt);}
+
+/* ── STATUS FILTERS ── */
+.filter-bar{padding:12px 20px 4px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
+.filter-bar::-webkit-scrollbar{display:none;}
+.filter-chip{flex-shrink:0;padding:8px 16px;border-radius:20px;font-size:0.82rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border2);color:var(--txt-muted);background:transparent;transition:all 0.2s;}
+.filter-chip.active{border-color:var(--amber);color:var(--amber);background:var(--amber-dim);}
+.filter-chip:hover:not(.active){border-color:var(--border2);color:var(--txt);}
+
+/* ── GRID ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;padding:14px 20px 32px;}
+@media(max-width:480px){.grid{grid-template-columns:1fr;}}
+
+/* ── METER CARD ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:14px;transition:border-color 0.2s,box-shadow 0.2s,background 0.2s;position:relative;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:transparent;transition:background 0.3s;}
+.card:hover{border-color:var(--border2);box-shadow:0 4px 24px rgba(0,0,0,0.4);}
+.card.status-active::before{background:var(--green);}
+.card.status-disconnected::before{background:var(--red);}
+.card.status-defected::before{background:var(--yellow);}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.meter-info{}
+.meter-name{font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;line-height:1.2;margin-bottom:4px;}
+.meter-ref{font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--txt-muted);letter-spacing:0.03em;}
+.status-badge{flex-shrink:0;display:inline-flex;align-items:center;gap:5px;font-size:0.75rem;font-weight:600;padding:5px 10px;border-radius:20px;cursor:pointer;transition:all 0.15s;border:1.5px solid transparent;}
+.status-badge:hover{filter:brightness(1.2);}
+.status-badge .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.badge-active{background:var(--green-dim);color:var(--green);border-color:rgba(16,185,129,0.3);}
+.badge-active .dot{background:var(--green);}
+.badge-disconnected{background:var(--red-dim);color:var(--red);border-color:rgba(239,68,68,0.3);}
+.badge-disconnected .dot{background:var(--red);}
+.badge-defected{background:rgba(234,179,8,0.12);color:var(--yellow);border-color:rgba(234,179,8,0.3);}
+.badge-defected .dot{background:var(--yellow);}
+.card-reading{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;}
+.units-display{display:flex;flex-direction:column;gap:2px;}
+.units-big{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;letter-spacing:-0.04em;color:var(--amber);line-height:1;}
+.units-label{font-size:0.72rem;color:var(--txt-muted);text-transform:uppercase;letter-spacing:0.08em;}
+.reading-detail{text-align:right;}
+.rd-row{font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--txt-muted);line-height:1.7;}
+.rd-val{color:var(--txt-dim);}
+.card-meta{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-size:0.82rem;color:var(--txt-muted);display:flex;align-items:center;gap:6px;transition:all 0.2s;}
+.card-meta .meta-icon{font-size:0.9rem;flex-shrink:0;}
+.meta-text{flex:1;line-height:1.35;}
+.meta-since{font-size:0.72rem;color:var(--txt-muted);opacity:0.7;margin-top:2px;}
+.no-load-tag{color:var(--txt-muted);opacity:0.5;font-style:italic;}
+.card-actions{display:flex;gap:8px;}
+.card-actions .btn{flex:1;justify-content:center;}
+
+/* ── EMPTY STATE ── */
+.empty-state{grid-column:1/-1;padding:60px 20px;text-align:center;color:var(--txt-muted);}
+.empty-state .es-icon{font-size:3rem;margin-bottom:16px;opacity:0.3;}
+.empty-state h3{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:8px;color:var(--txt-dim);}
+.empty-state p{font-size:0.9rem;}
+
+/* ── MODALS ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);justify-content:center;align-items:flex-end;z-index:1000;padding:0;}
+@media(min-width:640px){.overlay{align-items:center;padding:20px;}}
+.overlay.open{display:flex;}
+.sheet{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius) var(--radius) 0 0;width:100%;max-width:480px;max-height:92dvh;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:18px;}
+@media(min-width:640px){.sheet{border-radius:var(--radius);animation:fadeScale 0.25s ease;}}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+@keyframes fadeScale{from{transform:scale(0.96);opacity:0;}to{transform:scale(1);opacity:1;}}
+.sheet-handle{width:40px;height:4px;background:var(--border2);border-radius:4px;margin:0 auto -8px;}
+@media(min-width:640px){.sheet-handle{display:none;}}
+.sheet-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.25rem;letter-spacing:-0.02em;}
+.form-group{display:flex;flex-direction:column;gap:7px;}
+.form-label{font-size:0.82rem;font-weight:600;color:var(--txt-muted);text-transform:uppercase;letter-spacing:0.06em;}
+.form-input{padding:14px 16px;background:var(--bg);border:1.5px solid var(--border2);border-radius:var(--radius-sm);color:var(--txt);font-family:'DM Sans',sans-serif;font-size:0.95rem;outline:none;transition:border-color 0.2s,box-shadow 0.2s;-webkit-appearance:none;-moz-appearance:none;appearance:none;}
+.form-input:focus{border-color:var(--amber);box-shadow:0 0 0 3px var(--amber-dim);}
+.form-input.mono-input{font-family:'DM Mono',monospace;letter-spacing:0.05em;}
+input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(0.5);cursor:pointer;}
+body.light-theme input[type="date"]::-webkit-calendar-picker-indicator,body.light-theme input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(0);cursor:pointer;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:12px;padding-right:36px;}
+.form-select option{background:var(--surface);}
+.sheet-actions{display:flex;gap:10px;padding-top:4px;}
+.sheet-actions .btn{flex:1;justify-content:center;padding:15px;}
+
+/* ── LOAD LIST ── */
+.load-list{display:flex;flex-direction:column;gap:6px;max-height:240px;overflow-y:auto;}
+.load-list::-webkit-scrollbar{width:4px;}
+.load-list::-webkit-scrollbar-thumb{background:var(--border2);}
+.load-opt{display:flex;align-items:center;justify-content:space-between;padding:14px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;}
+.load-opt:hover{border-color:var(--border2);}
+.load-opt.sel{border-color:var(--amber);background:var(--amber-dim);}
+.lo-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.load-opt.sel .lo-check{background:var(--amber);border-color:var(--amber);}
+.lo-check-inner{font-size:11px;color:#0a0b0d;opacity:0;transition:opacity 0.15s;}
+.load-opt.sel .lo-check-inner{opacity:1;}
+.lo-name{font-weight:500;font-size:0.92rem;}
+.lo-none{color:var(--txt-muted);font-style:italic;}
+
+/* ── TOAST ── */
+#toast{display:none;position:fixed;bottom:20px;right:20px;padding:14px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--txt);font-size:0.9rem;box-shadow:0 8px 24px rgba(0,0,0,0.3);}
+#toast.show{display:block;}
+#toast.ok{border-left:3px solid var(--green);}
+#toast.err{border-left:3px solid var(--red);}
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to MEPCO APK</h1>
-        <p>This is your Capacitor-based Android application.</p>
-        <p>Start building your app here!</p>
-        <button onclick="alert('App is ready! 🚀')">Get Started</button>
+
+<div id="lock">
+  <div class="auth-wrap">
+    <div class="auth-logo">
+      <div class="bolt">⚡</div>
+      <h1 class="syne">Saleem Electric</h1>
+      <span>Meter Management System</span>
     </div>
+    <div class="auth-box">
+      <h2>Secure Access</h2>
+      <input class="pin-input" type="password" id="pass" placeholder="Enter password" autocomplete="off" onkeypress="if(event.key==='Enter'){event.preventDefault();login();}"/>
+      <button class="btn-unlock" type="button" onclick="login()">⚡ Unlock Dashboard</button>
+      <div id="err"></div>
+    </div>
+  </div>
+</div>
+
+<div id="loadingScreen">
+  <div class="spinner"></div>
+  <div class="loading-text">Syncing data…</div>
+</div>
+
+<div id="app">
+  <header class="app-header">
+    <div class="header-brand">
+      <span class="bolt">⚡</span>
+      <h3 class="syne">Saleem Electric</h3>
+    </div>
+    <div class="header-right">
+      <button class="sync-btn" type="button" onclick="refresh()" id="syncBtn">
+        <span class="sync-icon" id="syncIcon">↻</span>
+        <span id="syncLabel">Sync</span>
+      </button>
+      <button class="theme-btn" type="button" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
+    </div>
+  </header>
+  <div class="app-scroll">
+    <div class="summary-section" style="padding-top:16px;">
+      <div class="summary-banner" id="summaryBanner">
+        <div class="summary-top">
+          <span class="summary-label">📊 Live Overview</span>
+          <span class="mono" style="font-size:0.75rem;color:var(--txt-muted)" id="lastSync">Never synced</span>
+        </div>
+        <div class="summary-stats" id="summaryStats">
+          <div class="stat-pill white"><div class="sp-val" id="statMeters">—</div><div class="sp-lbl">Meters</div></div>
+          <div class="stat-pill amber"><div class="sp-val" id="statUnits">—</div><div class="sp-lbl">Total Units</div></div>
+          <div class="stat-pill green"><div class="sp-val" id="statActive">—</div><div class="sp-lbl">Active</div></div>
+          <div class="stat-pill blue"><div class="sp-val" id="statLoads">—</div><div class="sp-lbl">Loads</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input id="searchBox" placeholder="Search name or reference…" oninput="searchVal=this.value;renderGrid()"/>
+      </div>
+      <div class="toolbar-right">
+        <button class="btn btn-primary" type="button" onclick="openMeterModal('add')">＋ Meter</button>
+        <button class="btn btn-green" type="button" onclick="openAddLoadModal()">＋ Load</button>
+      </div>
+    </div>
+
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-chip active" type="button" data-filter="all" onclick="setFilter('all')">All</button>
+      <button class="filter-chip" type="button" data-filter="Active" onclick="setFilter('Active')">🟢 Active</button>
+      <button class="filter-chip" type="button" data-filter="Disconnected" onclick="setFilter('Disconnected')">🔴 Disconnected</button>
+      <button class="filter-chip" type="button" data-filter="Defected" onclick="setFilter('Defected')">🟡 Defected</button>
+    </div>
+
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+
+<div class="overlay" id="meterOverlay" onclick="overlayClick(event,'meterOverlay')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="meterModalTitle">Add Meter</div>
+    <input type="hidden" id="meterMode"/>
+    <input type="hidden" id="originalRef"/>
+    <div class="form-group"><label class="form-label">Meter Name</label><input class="form-input" type="text" id="mName" placeholder="e.g. Main Building"/></div>
+    <div class="form-group"><label class="form-label">Reference No</label><input class="form-input mono-input" type="text" id="mRef" placeholder="e.g. 12345678"/></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Last Reading</label><input class="form-input" type="number" id="mLast" placeholder="0"/></div>
+      <div class="form-group"><label class="form-label">Current Reading</label><input class="form-input" type="number" id="mCurr" placeholder="0"/></div>
+    </div>
+    <div class="form-group"><label class="form-label">Reading Date & Time</label>
+      <div class="form-row">
+        <input class="form-input" type="date" id="mDate"/>
+        <input class="form-input" type="time" id="mTime"/>
+      </div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn btn-secondary" type="button" onclick="closeMeterModal()">Cancel</button>
+      <button class="btn btn-primary" type="button" onclick="saveMeter()">Save Meter</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="addLoadOverlay" onclick="overlayClick(event,'addLoadOverlay')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Add New Load</div>
+    <div class="form-group"><label class="form-label">Load Name</label><input class="form-input" type="text" id="newLoadName" placeholder="e.g. Phase 1, WAPDA Feeder"/></div>
+    <div class="sheet-actions">
+      <button class="btn btn-secondary" type="button" onclick="closeAddLoadModal()">Cancel</button>
+      <button class="btn btn-primary" type="button" onclick="saveNewLoad()">Add Load</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="changeLoadOverlay" onclick="overlayClick(event,'changeLoadOverlay')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="changeLoadTitle">Assign Load</div>
+    <input type="hidden" id="changeLoadRef"/>
+    <div class="form-group"><label class="form-label">Select Load</label>
+      <div class="load-list" id="loadList"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Active Since</label>
+      <div class="form-row">
+        <input class="form-input" type="date" id="loadDate"/>
+        <input class="form-input" type="time" id="loadTime"/>
+      </div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn btn-secondary" type="button" onclick="closeChangeLoadModal()">Cancel</button>
+      <button class="btn btn-primary" type="button" onclick="saveLoadAssignment()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="statusOverlay" onclick="overlayClick(event,'statusOverlay')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Meter Status</div>
+    <input type="hidden" id="statusRef"/>
+    <div class="form-group"><label class="form-label">Connection Status</label>
+      <select class="form-input form-select" id="statusSelect">
+        <option value="Active">🟢 Active</option>
+        <option value="Disconnected">🔴 Disconnected</option>
+        <option value="Defected">🟡 Defected</option>
+      </select>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn btn-secondary" type="button" onclick="closeStatusModal()">Cancel</button>
+      <button class="btn btn-primary" type="button" onclick="saveStatus()">Update Status</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbzkrYaOw4RwTXCbEYehxhtOWdcwE24W54l6qWCL5IK1yC4fry2mw_-GZnJYC3CUcl74/exec";
+const PASS = "mepco2026";
+
+let meters = [], loads = [], meterMeta = {};
+let searchVal = "", filterStatus = "all", selectedLoadIds = [];
+let isDarkMode = true;
+
+// ─── THEME MANAGEMENT ───
+function initTheme(){
+  const saved = localStorage.getItem('theme');
+  isDarkMode = saved ? saved === 'dark' : true;
+  applyTheme();
+}
+
+function applyTheme(){
+  if(isDarkMode){
+    document.body.classList.remove('light-theme');
+    $('themeBtn').textContent = '🌙 Dark';
+  } else {
+    document.body.classList.add('light-theme');
+    $('themeBtn').textContent = '☀️ Light';
+  }
+  localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+}
+
+function toggleTheme(){
+  isDarkMode = !isDarkMode;
+  applyTheme();
+}
+
+// ─── UTILS ───
+const $ = id => document.getElementById(id);
+function todayISO(){ return new Date().toISOString().split('T')[0]; }
+function nowTime(){ return new Date().toTimeString().slice(0,5); }
+function formatDT(iso){
+  if(!iso || iso==="null") return "N/A";
+  try{ return new Date(iso).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+  catch{ return "N/A"; }
+}
+function getMeta(ref){ 
+  let meta = meterMeta[String(ref).trim()] || {status:'Active',loadId:null,loadSince:null};
+  if(!meta.loadIds){
+    meta.loadIds = meta.loadId ? [meta.loadId] : [];
+  }
+  return meta;
+}
+function getLoadNames(ids){ 
+  if(!ids || !Array.isArray(ids) || ids.length === 0) return null;
+  return ids.map(id => loads.find(x=>x.id===id)?.name).filter(Boolean).join(', ');
+}
+function badgeClass(s){ return s==='Disconnected'?'badge-disconnected':s==='Defected'?'badge-defected':'badge-active'; }
+function cardStatusClass(s){ return s==='Disconnected'?'status-disconnected':s==='Defected'?'status-defected':'status-active'; }
+
+let toastTimer;
+function toast(msg, type='ok'){
+  const t = $('toast');
+  t.innerText = msg;
+  t.className = `show ${type}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = '', 3000);
+}
+
+function setLoading(on){
+  $('loadingScreen').classList.toggle('show', on);
+}
+
+// ─── AUTH ───
+function login(){
+  if($('pass').value === PASS){
+    $('lock').style.display='none';
+    $('app').style.display='flex';
+    initTheme();
+    load();
+  } else {
+    $('err').innerText = "Incorrect password. Try again.";
+    $('pass').value='';
+    $('pass').focus();
+  }
+}
+
+// ─── FILTER ───
+function setFilter(f){
+  filterStatus = f;
+  document.querySelectorAll('.filter-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.filter === f);
+  });
+  renderGrid();
+}
+
+// ─── API ───
+async function apiPost(action, data){
+  try{
+    await fetch(API+"?action="+action, {method:"POST", body:JSON.stringify(data)});
+    return {success:true};
+  } catch(e){ return {success:true}; }
+}
+
+async function load(){
+  setLoading(true);
+  try{
+    const r = await fetch(API+"?action=get");
+    const res = await r.json();
+    meters = (res.meters||[]).map(row => ({
+      ref: String(row["REFERENCE NO"]||"").trim(),
+      name: String(row["Meter Name"]||"").trim(),
+      last: +row["Last Month MEPCO Reading"]||0,
+      curr: +row["Manual Reading"]||0,
+      date: row["Manual Reading Date"]||null
+    }));
+    loads = res.loads || [];
+    meterMeta = res.meta || {};
+    $('lastSync').innerText = "Synced "+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    renderSummary();
+    renderGrid();
+    toast("Data synced", "ok");
+  } catch(e){
+    toast("Sync failed — check connection", "err");
+  }
+  setLoading(false);
+}
+
+function refresh(){
+  const btn = $('syncBtn');
+  btn.classList.add('spinning');
+  $('syncLabel').innerText = "Syncing…";
+  load().finally(()=>{
+    btn.classList.remove('spinning');
+    $('syncLabel').innerText = "Sync";
+  });
+}
+
+// ─── RENDER ───
+function renderSummary(){
+  const totalUnits = meters.reduce((s,m)=>s+(m.curr-m.last),0);
+  const activeCount = meters.filter(m=>getMeta(m.ref).status==='Active').length;
+  $('statMeters').innerText = meters.length;
+  $('statUnits').innerText = totalUnits.toLocaleString();
+  $('statActive').innerText = activeCount;
+  $('statLoads').innerText = loads.length;
+}
+
+function renderGrid(){
+  const filtered = meters.filter(m=>{
+    const meta = getMeta(m.ref);
+    const matchSearch = m.name.toLowerCase().includes(searchVal.toLowerCase()) || m.ref.includes(searchVal);
+    const matchFilter = filterStatus === 'all' || meta.status === filterStatus;
+    return matchSearch && matchFilter;
+  });
+
+  if(filtered.length === 0){
+    $('grid').innerHTML = `<div class="empty-state"><div class="es-icon">🔌</div><h3>No meters found</h3><p>Try a different search or filter.</p></div>`;
+    return;
+  }
+
+  $('grid').innerHTML = filtered.map(m=>{
+    const meta = getMeta(m.ref);
+    const units = m.curr - m.last;
+    const loadIds = meta.loadIds || (meta.loadId ? [meta.loadId] : []);
+    const loadNamesStr = getLoadNames(loadIds);
+    const statusLabel = meta.status || 'Active';
+    return `
+    <div class="card ${cardStatusClass(statusLabel)}">
+      <div class="card-top">
+        <div class="meter-info">
+          <div class="meter-name">${escHtml(m.name)}</div>
+          <div class="meter-ref">REF: ${escHtml(m.ref)}</div>
+        </div>
+        <span class="status-badge ${badgeClass(statusLabel)}" onclick="openStatusModal('${m.ref}')">
+          <span class="dot"></span>${statusLabel}
+        </span>
+      </div>
+      <div class="card-reading">
+        <div class="units-display">
+          <div class="units-big">${units.toLocaleString()}</div>
+          <div class="units-label">Units Consumed</div>
+        </div>
+        <div class="reading-detail mono">
+          <div class="rd-row">Prev <span class="rd-val">${m.last.toLocaleString()}</span></div>
+          <div class="rd-row">Now  <span class="rd-val">${m.curr.toLocaleString()}</span></div>
+          <div class="rd-row" style="font-size:0.7rem;margin-top:2px;opacity:0.6;">${formatDT(m.date)}</div>
+        </div>
+      </div>
+      <div class="card-meta">
+        <span class="meta-icon">🔌</span>
+        <div class="meta-text">
+          ${loadNamesStr ? `<div style="font-weight:600;color:var(--amber)">${escHtml(loadNamesStr)}</div><div class="meta-since">Since ${formatDT(meta.loadSince)}</div>` : '<span class="no-load-tag">No load assigned</span>'}
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="btn btn-secondary btn-sm" type="button" onclick="openMeterModal('edit','${m.ref}')">✏️ Edit</button>
+        <button class="btn btn-secondary btn-sm" type="button" onclick="openChangeLoadModal('${m.ref}')">🔌 Load</button>
+        <button class="btn btn-danger btn-sm" type="button" onclick="delMeter('${m.ref}')">🗑</button>
+      </div>
+      <form method="POST" action="https://bill.pitc.com.pk/gbill.aspx?refno=${m.ref}" target="_blank" style="width:100%;margin:0;">
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">📄 View MEPCO Bill</button>
+      </form>
+    </div>`;
+  }).join('');
+}
+
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ─── METER MODAL ───
+function openMeterModal(mode, ref){
+  $('meterMode').value = mode;
+  if(mode==='add'){
+    $('meterModalTitle').innerText = 'Add Meter';
+    $('mName').value=''; $('mRef').value=''; $('mLast').value=''; $('mCurr').value='';
+    $('mDate').value=todayISO(); $('mTime').value=nowTime();
+    $('mRef').disabled=false;
+  } else {
+    $('meterModalTitle').innerText = 'Edit Meter';
+    const m = meters.find(x=>x.ref==ref);
+    $('originalRef').value = m.ref;
+    $('mRef').value = m.ref; $('mName').value = m.name;
+    $('mLast').value = m.last; $('mCurr').value = m.curr;
+    $('mDate').value = (m.date||'').split('T')[0] || todayISO();
+    $('mTime').value = (m.date||'').split('T')[1]?.slice(0,5) || nowTime();
+    $('mRef').disabled = true;
+  }
+  openOverlay('meterOverlay');
+}
+function closeMeterModal(){ closeOverlay('meterOverlay'); }
+async function saveMeter(){
+  const name = $('mName').value.trim();
+  const ref = $('mRef').value.trim();
+  if(!name || !ref){ toast("Name and Reference are required","err"); return; }
+  const last = +$('mLast').value||0, curr = +$('mCurr').value||0;
+  const payload = {
+    "REFERENCE NO": ref, "Meter Name": name,
+    "Last Month MEPCO Reading": last, "Manual Reading": curr,
+    "Manual Reading Date": $('mDate').value+"T"+$('mTime').value,
+    "Units Consumed": curr-last, ref: $('originalRef').value||ref
+  };
+  
+  const mode = $('meterMode').value;
+  const action = (mode === 'edit') ? 'update' : 'create';
+  
+  closeMeterModal();
+  setLoading(true);
+  await apiPost(action, payload);
+  await load();
+  toast("Meter saved ✓", "ok");
+}
+
+// ─── DELETE ───
+async function delMeter(ref){
+  const m = meters.find(x=>x.ref==ref);
+  if(!confirm(`Delete "${m?.name || ref}"? This cannot be undone.`)) return;
+  setLoading(true);
+  await apiPost("delete", {ref});
+  await load();
+  toast("Meter deleted", "ok");
+}
+
+// ─── LOAD MODAL ───
+function openAddLoadModal(){
+  $('newLoadName').value='';
+  openOverlay('addLoadOverlay');
+}
+function closeAddLoadModal(){ closeOverlay('addLoadOverlay'); }
+async function saveNewLoad(){
+  const name = $('newLoadName').value.trim();
+  if(!name){ toast("Enter a load name","err"); return; }
+  const id = "load_"+Date.now();
+  closeAddLoadModal();
+  setLoading(true);
+  await apiPost("saveLoad", {id, name});
+  await load();
+  toast("Load added ✓", "ok");
+}
+
+// ─── CHANGE LOAD ───
+function openChangeLoadModal(ref){
+  const meta = getMeta(ref);
+  $('changeLoadRef').value = ref;
+  $('changeLoadTitle').innerText = "Assign Load — "+meters.find(m=>m.ref==ref)?.name;
+  selectedLoadIds = meta.loadIds ? [...meta.loadIds] : (meta.loadId ? [meta.loadId] : []);
+  $('loadDate').value = (meta.loadSince||'').split('T')[0] || todayISO();
+  $('loadTime').value = (meta.loadSince||'').split('T')[1]?.slice(0,5) || nowTime();
+  renderLoadList();
+  openOverlay('changeLoadOverlay');
+}
+function toggleSelectLoad(id){
+  const idx = selectedLoadIds.indexOf(id);
+  if(idx > -1){
+    selectedLoadIds.splice(idx, 1);
+  } else {
+    selectedLoadIds.push(id);
+  }
+  renderLoadList();
+}
+function renderLoadList(){
+  let html = `
+    <div class="load-opt ${selectedLoadIds.length===0?'sel':''}" onclick="selectedLoadIds=[];renderLoadList()" style="width:100%;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="lo-check"><span class="lo-check-inner">✓</span></div>
+        <span class="lo-name lo-none">No Load</span>
+      </div>
+    </div>
+  `;
+  html += loads.map(l=>`
+    <div class="load-opt ${selectedLoadIds.includes(l.id)?'sel':''}" onclick="toggleSelectLoad('${l.id}')" style="width:100%;">
+      <div style="display:flex;align-items:center;gap:12px;flex:1;">
+        <div class="lo-check"><span class="lo-check-inner">✓</span></div>
+        <span class="lo-name">${escHtml(l.name)}</span>
+      </div>
+      <button class="btn btn-danger btn-sm" type="button" onclick="delLoad(event,'${l.id}','${escHtml(l.name)}')" style="padding:6px 10px;font-size:0.75rem;">🗑</button>
+    </div>`).join('');
+  $('loadList').innerHTML = html;
+}
+async function delLoad(e, id, name){
+  e.stopPropagation();
+  if(!confirm(`Delete load "${name}"? This will unassign it from all meters.`)) return;
+  closeChangeLoadModal();
+  setLoading(true);
+  await apiPost("deleteLoad", {id});
+  await load();
+  toast("Load deleted", "ok");
+}
+function closeChangeLoadModal(){ closeOverlay('changeLoadOverlay'); }
+async function saveLoadAssignment(){
+  const ref = $('changeLoadRef').value;
+  const meta = getMeta(ref);
+  closeChangeLoadModal();
+  setLoading(true);
+  await apiPost("updateMeta", {
+    ref, 
+    status: meta.status||'Active', 
+    loadId: selectedLoadIds.length > 0 ? selectedLoadIds[0] : null, 
+    loadIds: selectedLoadIds, 
+    loadSince: $('loadDate').value+"T"+$('loadTime').value
+  });
+  await load();
+  toast("Load assigned ✓", "ok");
+}
+
+// ─── STATUS MODAL ───
+function openStatusModal(ref){
+  $('statusRef').value = ref;
+  $('statusSelect').value = getMeta(ref).status || 'Active';
+  openOverlay('statusOverlay');
+}
+function closeStatusModal(){ closeOverlay('statusOverlay'); }
+async function saveStatus(){
+  const ref = $('statusRef').value;
+  const meta = getMeta(ref);
+  closeStatusModal();
+  setLoading(true);
+  await apiPost("updateMeta", {ref, status: $('statusSelect').value, loadId: meta.loadId, loadIds: meta.loadIds, loadSince: meta.loadSince});
+  await load();
+  toast("Status updated ✓", "ok");
+}
+
+// ─── OVERLAY HELPERS ───
+function openOverlay(id){ $(id).classList.add('open'); document.body.style.overflow='hidden'; }
+function closeOverlay(id){ $(id).classList.remove('open'); document.body.style.overflow=''; }
+function overlayClick(e, id){ if(e.target.id===id) closeOverlay(id); }
+</script>
 </body>
 </html>
