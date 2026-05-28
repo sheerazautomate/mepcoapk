@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover"/>
 <title>Saleem Electricity Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
@@ -54,7 +54,22 @@ body.light-theme {
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overscroll-behavior:none;}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font-size:15px;line-height:1.5;transition:background-color 0.3s,color 0.3s;}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--txt);
+  font-size:15px;
+  line-height:1.5;
+  transition:background-color 0.3s,color 0.3s;
+  /* Prevent accidental highlighting on quick element double-taps */
+  -webkit-user-select: none;
+  user-select: none;
+}
+/* Re-enable input typing selection for text fields */
+input, textarea, select {
+  -webkit-user-select: text;
+  user-select: text;
+}
 .mono{font-family:'DM Mono',monospace;}
 .syne{font-family:'Syne',sans-serif;}
 
@@ -85,7 +100,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
 .loading-text{color:var(--txt-muted);font-size:0.95rem;letter-spacing:0.05em;}
 
 /* ── HEADER ── */
-.app-header{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--surface);border-bottom:1px solid var(--border);gap:12px;transition:background 0.3s;}
+.app-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* Upgraded layout spacing to elegantly respect Android safe areas/notches dynamically */
+  padding: calc(env(safe-area-inset-top, 0px) + 16px) 20px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  transition: background 0.3s;
+}
 .header-brand{display:flex;align-items:center;gap:10px;}
 .header-brand .bolt{font-size:1.3rem;filter:drop-shadow(0 0 8px var(--amber));}
 .header-brand h3{font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;letter-spacing:-0.01em;}
@@ -745,10 +771,35 @@ async function saveStatus(){
   toast("Status updated ✓", "ok");
 }
 
-// ─── OVERLAY HELPERS ───
-function openOverlay(id){ $(id).classList.add('open'); document.body.style.overflow='hidden'; }
-function closeOverlay(id){ $(id).classList.remove('open'); document.body.style.overflow=''; }
+// ─── OVERLAY HELPERS UPGRADED FOR MOBILE BACK-BUTTON INTERCEPTION ───
+function openOverlay(id){ 
+  if(!$(id).classList.contains('open')) {
+    $(id).classList.add('open'); 
+    document.body.style.overflow='hidden'; 
+    // Push temporary state into navigation history log to intercept the device back key
+    window.history.pushState({ activeOverlayId: id }, "");
+  }
+}
+
+function closeOverlay(id, fromHistoryPop = false){ 
+  if($(id).classList.contains('open')) {
+    $(id).classList.remove('open'); 
+    document.body.style.overflow=''; 
+    // Synchronize history timeline state if modal was discarded manually inside the layout view
+    if(!fromHistoryPop && window.history.state && window.history.state.activeOverlayId === id) {
+      window.history.back();
+    }
+  }
+}
+
 function overlayClick(e, id){ if(e.target.id===id) closeOverlay(id); }
+
+// Native application hardware button monitoring link
+window.addEventListener('popstate', function(event) {
+  document.querySelectorAll('.overlay.open').forEach(el => {
+    closeOverlay(el.id, true);
+  });
+});
 </script>
 </body>
 </html>
