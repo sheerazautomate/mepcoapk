@@ -17,15 +17,15 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-level: 20
-          cache: 'npm'
+          node-version: 20
+          # Removed the strict cache check to prevent the missing lockfile error
 
       - name: Install Dependencies
         run: npm install
 
       - name: Initialize Android Platform
         run: |
-          npx cap npx cap add android
+          npx cap add android
           npx cap sync android
 
       - name: Set up JDK 17
