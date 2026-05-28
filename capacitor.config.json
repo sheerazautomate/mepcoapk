@@ -1,0 +1,6 @@
+{
+  "appId": "com.saleemelectric.app",
+  "appName": "Saleem Electric",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
