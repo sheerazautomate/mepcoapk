@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover"/>
 <title>Saleem Electricity Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root {
   --bg: #0a0b0d;
@@ -30,23 +30,23 @@
 }
 
 body.light-theme {
-  --bg: #f8f9fa;
+  --bg: #f3f4f6;
   --surface: #ffffff;
-  --surface2: #f3f4f6;
+  --surface2: #f9fafb;
   --border: #e5e7eb;
   --border2: #d1d5db;
-  --amber: #f59e0b;
-  --amber-dim: rgba(245,158,11,0.12);
-  --amber-glow: rgba(245,158,11,0.25);
-  --blue: #3b82f6;
-  --blue-dim: rgba(59,130,246,0.12);
-  --green: #10b981;
-  --green-dim: rgba(16,185,129,0.12);
-  --red: #ef4444;
-  --red-dim: rgba(239,68,68,0.12);
-  --yellow: #eab308;
-  --txt: #1f2937;
-  --txt-muted: #6b7280;
+  --amber: #d97706;
+  --amber-dim: rgba(217,119,6,0.1);
+  --amber-glow: rgba(217,119,6,0.2);
+  --blue: #2563eb;
+  --blue-dim: rgba(37,99,235,0.1);
+  --green: #16a34a;
+  --green-dim: rgba(22,163,74,0.1);
+  --red: #dc2626;
+  --red-dim: rgba(220,38,38,0.1);
+  --yellow: #ca8a04;
+  --txt: #111827;
+  --txt-muted: #9ca3af;
   --txt-dim: #4b5563;
   --radius: 14px;
   --radius-sm: 8px;
@@ -61,11 +61,9 @@ body{
   font-size:15px;
   line-height:1.5;
   transition:background-color 0.3s,color 0.3s;
-  /* Prevent accidental highlighting on quick element double-taps */
   -webkit-user-select: none;
   user-select: none;
 }
-/* Re-enable input typing selection for text fields */
 input, textarea, select {
   -webkit-user-select: text;
   user-select: text;
@@ -83,11 +81,10 @@ input, textarea, select {
 .auth-logo span{font-size:0.8rem;color:var(--txt-muted);letter-spacing:0.1em;text-transform:uppercase;}
 .auth-box{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:28px;width:100%;}
 .auth-box h2{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:20px;color:var(--txt-dim);}
-.pin-input{width:100%;padding:16px 18px;background:var(--bg);border:1.5px solid var(--border2);border-radius:var(--radius-sm);color:var(--txt);font-size:1.1rem;font-family:'DM Mono',monospace;letter-spacing:0.05em;outline:none;transition:border-color 0.2s,box-shadow 0.2s;-webkit-appearance:none;-moz-appearance:none;appearance:none;}
+.pin-input{width:100%;padding:16px 18px;background:var(--bg);border:1.5px solid var(--border2);border-radius:var(--radius-sm);color:var(--txt);font-size:1.1rem;font-family:'DM Mono',monospace;letter-spacing:0.05em;outline:none;transition:border-color 0.2s,box-shadow 0.2s;appearance:none;}
 .pin-input:focus{border-color:var(--amber);box-shadow:0 0 0 3px var(--amber-dim);}
-.btn-unlock{margin-top:14px;width:100%;padding:16px;background:var(--amber);color:#0a0b0d;border:none;border-radius:var(--radius-sm);font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;transition:all 0.2s;-webkit-appearance:none;-moz-appearance:none;appearance:none;}
+.btn-unlock{margin-top:14px;width:100%;padding:16px;background:var(--amber);color:#0a0b0d;border:none;border-radius:var(--radius-sm);font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;transition:all 0.2s;appearance:none;}
 .btn-unlock:hover{background:#fbbf24;transform:translateY(-1px);box-shadow:0 8px 24px rgba(245,158,11,0.35);}
-.btn-unlock:active{transform:translateY(0);}
 #err{color:var(--red);font-size:0.85rem;text-align:center;margin-top:12px;min-height:20px;}
 
 /* ── APP SHELL ── */
@@ -105,59 +102,168 @@ input, textarea, select {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /* Upgraded layout spacing to elegantly respect Android safe areas/notches dynamically */
-  padding: calc(env(safe-area-inset-top, 0px) + 16px) 20px 16px;
+  padding: calc(env(safe-area-inset-top, 0px) + 14px) 16px 14px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   gap: 12px;
   transition: background 0.3s;
 }
-.header-brand{display:flex;align-items:center;gap:10px;}
-.header-brand .bolt{font-size:1.3rem;filter:drop-shadow(0 0 8px var(--amber));}
-.header-brand h3{font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;letter-spacing:-0.01em;}
-.header-right{display:flex;align-items:center;gap:10px;}
-.sync-btn{display:flex;align-items:center;gap:6px;padding:9px 14px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--txt-dim);cursor:pointer;font-size:0.85rem;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
-.sync-btn:hover{border-color:var(--border2);color:var(--txt);background:var(--border);}
+.header-left{display:flex;align-items:center;gap:12px;}
+.menu-trigger{background:transparent;border:none;color:var(--txt);font-size:1.4rem;cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;}
+.header-brand{display:flex;align-items:center;gap:8px;}
+.header-brand .bolt{font-size:1.15rem;filter:drop-shadow(0 0 8px var(--amber));}
+.header-brand h3{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;letter-spacing:-0.01em;}
+.header-right{display:flex;align-items:center;gap:8px;}
+.sync-btn{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--txt-dim);cursor:pointer;font-size:0.82rem;font-weight:600;}
 .sync-btn.spinning .sync-icon{animation:spin 1s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
-.sync-icon{display:inline-block;font-size:0.9rem;}
-.theme-btn{padding:9px 14px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--txt-muted);cursor:pointer;font-size:0.85rem;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
-.theme-btn:hover{border-color:var(--amber);color:var(--amber);}
 
-/* ── SCROLLABLE CONTENT ── */
-.app-scroll{flex:1;overflow-y:auto;overscroll-behavior:contain;}
-.app-scroll::-webkit-scrollbar{width:4px;}
-.app-scroll::-webkit-scrollbar-track{background:transparent;}
-.app-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+/* ── NATIVE TABS ARCHITECTURE ── */
+.tab-view {
+  display: none;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: 24px;
+}
+.tab-view.active-tab {
+  display: block;
+}
 
-/* ── TOOLBAR ── */
-.toolbar{padding:16px 20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+/* ── SIDE DRAWER MENU ── */
+.drawer-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1500;
+}
+.drawer-overlay.open { display: block; }
+.drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 280px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  z-index: 1501;
+  transform: translateX(-100%);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+.drawer.open { transform: translateX(0); }
+.drawer-header {
+  padding: calc(env(safe-area-inset-top, 0px) + 24px) 20px 20px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.drawer-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem; color: var(--amber); }
+.drawer-subtitle { font-size: 0.75rem; color: var(--txt-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+.drawer-menu { padding: 12px; flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.drawer-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  color: var(--txt-dim);
+  font-size: 0.92rem;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+.drawer-item:active { background: var(--surface2); color: var(--txt); }
+.drawer-item .icon { font-size: 1.1rem; width: 24px; text-align: center; }
+.drawer-divider { height: 1px; background: var(--border); margin: 8px 0; }
+.drawer-footer { padding: 16px; font-size: 0.75rem; color: var(--txt-muted); border-top: 1px solid var(--border); text-align: center; }
+
+/* ── BOTTOM STICKY NAVIGATION BAR ── */
+.bottom-nav {
+  flex-shrink: 0;
+  display: flex;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 6px);
+  padding-top: 6px;
+  justify-content: space-around;
+  z-index: 900;
+}
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: var(--txt-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  gap: 2px;
+  padding: 4px 0;
+}
+.nav-item .nav-icon {
+  font-size: 1.2rem;
+  padding: 4px 16px;
+  border-radius: 16px;
+  transition: all 0.2s;
+}
+.nav-item .nav-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.nav-item.active {
+  color: var(--amber);
+}
+.nav-item.active .nav-icon {
+  background: var(--amber-dim);
+  color: var(--amber);
+}
+
+/* ── LOADS TAB VIEW PANELS ── */
+.loads-layout { padding: 16px 20px; }
+.load-card-row {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.load-card-info { display: flex; flex-direction: column; gap: 2px; }
+.load-card-title { font-weight: 600; font-size: 0.95rem; }
+.load-card-count { font-size: 0.75rem; color: var(--txt-muted); }
+
+/* ── SYSTEM DESIGN COMMONS ── */
+.toolbar{padding:16px 20px 10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
 .search-wrap{flex:1;min-width:200px;position:relative;}
 .search-wrap .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:0.9rem;color:var(--txt-muted);}
 .search-wrap input{width:100%;padding:12px 14px 12px 38px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--txt);font-family:'DM Sans',sans-serif;font-size:0.95rem;outline:none;transition:border-color 0.2s;}
 .search-wrap input:focus{border-color:var(--amber);}
-.search-wrap input::placeholder{color:var(--txt-muted);}
 .toolbar-right{display:flex;gap:8px;}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:12px 18px;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.9rem;cursor:pointer;border:none;transition:all 0.15s;-webkit-appearance:none;-moz-appearance:none;appearance:none;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:12px 18px;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.9rem;cursor:pointer;border:none;transition:all 0.15s;appearance:none;}
 .btn:active{transform:scale(0.97);}
 .btn-primary{background:var(--amber);color:#0a0b0d;}
-.btn-primary:hover{background:#fbbf24;}
 .btn-secondary{background:var(--surface2);color:var(--txt-dim);border:1px solid var(--border2);}
-.btn-secondary:hover{color:var(--txt);border-color:var(--border2);background:var(--border);}
 .btn-green{background:var(--green-dim);color:var(--green);border:1px solid rgba(16,185,129,0.3);}
-.btn-green:hover{background:rgba(16,185,129,0.2);}
 .btn-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,0.3);}
-.btn-danger:hover{background:rgba(239,68,68,0.2);}
 .btn-sm{padding:8px 12px;font-size:0.82rem;}
-.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
 
-/* ── SUMMARY STRIP ── */
-.summary-section{padding:0 20px 4px;}
-.summary-banner{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;gap:14px;transition:background-color 0.3s,border-color 0.3s;}
+/* ── SUMMARY BANNER ── */
+.summary-section{padding:16px 20px 4px;}
+.summary-banner{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;gap:14px;}
 .summary-top{display:flex;align-items:center;justify-content:space-between;}
 .summary-label{font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--txt-muted);}
 .summary-stats{display:flex;gap:8px;flex-wrap:wrap;}
-.stat-pill{flex:1;min-width:90px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 12px;display:flex;flex-direction:column;gap:3px;transition:background-color 0.3s,border-color 0.3s;}
+.stat-pill{flex:1;min-width:90px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 12px;display:flex;flex-direction:column;gap:3px;}
 .stat-pill .sp-val{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;letter-spacing:-0.03em;}
 .stat-pill .sp-lbl{font-size:0.72rem;color:var(--txt-muted);text-transform:uppercase;letter-spacing:0.06em;}
 .stat-pill.amber .sp-val{color:var(--amber);}
@@ -166,100 +272,70 @@ input, textarea, select {
 .stat-pill.white .sp-val{color:var(--txt);}
 
 /* ── STATUS FILTERS ── */
-.filter-bar{padding:12px 20px 4px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
+.filter-bar{padding:8px 20px 4px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
 .filter-bar::-webkit-scrollbar{display:none;}
 .filter-chip{flex-shrink:0;padding:8px 16px;border-radius:20px;font-size:0.82rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border2);color:var(--txt-muted);background:transparent;transition:all 0.2s;}
 .filter-chip.active{border-color:var(--amber);color:var(--amber);background:var(--amber-dim);}
-.filter-chip:hover:not(.active){border-color:var(--border2);color:var(--txt);}
 
-/* ── GRID ── */
+/* ── GRID & CARDS ── */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;padding:14px 20px 32px;}
 @media(max-width:480px){.grid{grid-template-columns:1fr;}}
-
-/* ── METER CARD ── */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:14px;transition:border-color 0.2s,box-shadow 0.2s,background 0.2s;position:relative;}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:transparent;transition:background 0.3s;}
-.card:hover{border-color:var(--border2);box-shadow:0 4px 24px rgba(0,0,0,0.4);}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:14px;position:relative;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:transparent;}
 .card.status-active::before{background:var(--green);}
 .card.status-disconnected::before{background:var(--red);}
 .card.status-defected::before{background:var(--yellow);}
 .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
-.meter-info{}
 .meter-name{font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;line-height:1.2;margin-bottom:4px;}
-.meter-ref{font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--txt-muted);letter-spacing:0.03em;}
-.status-badge{flex-shrink:0;display:inline-flex;align-items:center;gap:5px;font-size:0.75rem;font-weight:600;padding:5px 10px;border-radius:20px;cursor:pointer;transition:all 0.15s;border:1.5px solid transparent;}
-.status-badge:hover{filter:brightness(1.2);}
-.status-badge .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-.badge-active{background:var(--green-dim);color:var(--green);border-color:rgba(16,185,129,0.3);}
-.badge-active .dot{background:var(--green);}
-.badge-disconnected{background:var(--red-dim);color:var(--red);border-color:rgba(239,68,68,0.3);}
-.badge-disconnected .dot{background:var(--red);}
-.badge-defected{background:rgba(234,179,8,0.12);color:var(--yellow);border-color:rgba(234,179,8,0.3);}
-.badge-defected .dot{background:var(--yellow);}
+.meter-ref{font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--txt-muted);}
+.status-badge{display:inline-flex;align-items:center;gap:5px;font-size:0.75rem;font-weight:600;padding:5px 10px;border-radius:20px;cursor:pointer;border:1.5px solid transparent;}
+.status-badge .dot{width:6px;height:6px;border-radius:50%;}
+.badge-active{background:var(--green-dim);color:var(--green);border-color:rgba(16,185,129,0.3);}.badge-active .dot{background:var(--green);}
+.badge-disconnected{background:var(--red-dim);color:var(--red);border-color:rgba(239,68,68,0.3);}.badge-disconnected .dot{background:var(--red);}
+.badge-defected{background:rgba(234,179,8,0.12);color:var(--yellow);border-color:rgba(234,179,8,0.3);}.badge-defected .dot{background:var(--yellow);}
 .card-reading{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;}
-.units-display{display:flex;flex-direction:column;gap:2px;}
 .units-big{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;letter-spacing:-0.04em;color:var(--amber);line-height:1;}
-.units-label{font-size:0.72rem;color:var(--txt-muted);text-transform:uppercase;letter-spacing:0.08em;}
-.reading-detail{text-align:right;}
+.units-label{font-size:0.72rem;color:var(--txt-muted);text-transform:uppercase;}
 .rd-row{font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--txt-muted);line-height:1.7;}
 .rd-val{color:var(--txt-dim);}
-.card-meta{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-size:0.82rem;color:var(--txt-muted);display:flex;align-items:center;gap:6px;transition:all 0.2s;}
-.card-meta .meta-icon{font-size:0.9rem;flex-shrink:0;}
-.meta-text{flex:1;line-height:1.35;}
-.meta-since{font-size:0.72rem;color:var(--txt-muted);opacity:0.7;margin-top:2px;}
-.no-load-tag{color:var(--txt-muted);opacity:0.5;font-style:italic;}
-.card-actions{display:flex;gap:8px;}
-.card-actions .btn{flex:1;justify-content:center;}
-
-/* ── EMPTY STATE ── */
+.card-meta{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-size:0.82rem;color:var(--txt-muted);display:flex;align-items:center;gap:6px;}
+.meta-since{font-size:0.72rem;color:var(--txt-muted);margin-top:2px;}
+.card-actions{display:flex;gap:8px;}.card-actions .btn{flex:1;justify-content:center;}
 .empty-state{grid-column:1/-1;padding:60px 20px;text-align:center;color:var(--txt-muted);}
-.empty-state .es-icon{font-size:3rem;margin-bottom:16px;opacity:0.3;}
-.empty-state h3{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:8px;color:var(--txt-dim);}
-.empty-state p{font-size:0.9rem;}
 
-/* ── MODALS ── */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);justify-content:center;align-items:flex-end;z-index:1000;padding:0;}
+/* ── SHEET MODALS ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);justify-content:center;align-items:flex-end;z-index:1600;}
 @media(min-width:640px){.overlay{align-items:center;padding:20px;}}
 .overlay.open{display:flex;}
 .sheet{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius) var(--radius) 0 0;width:100%;max-width:480px;max-height:92dvh;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:18px;}
-@media(min-width:640px){.sheet{border-radius:var(--radius);animation:fadeScale 0.25s ease;}}
-@keyframes slideUp{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
-@keyframes fadeScale{from{transform:scale(0.96);opacity:0;}to{transform:scale(1);opacity:1;}}
+@media(min-width:640px){.sheet{border-radius:var(--radius);animation:fadeScale 0.2s ease;}}
 .sheet-handle{width:40px;height:4px;background:var(--border2);border-radius:4px;margin:0 auto -8px;}
 @media(min-width:640px){.sheet-handle{display:none;}}
-.sheet-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.25rem;letter-spacing:-0.02em;}
+.sheet-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.25rem;}
 .form-group{display:flex;flex-direction:column;gap:7px;}
 .form-label{font-size:0.82rem;font-weight:600;color:var(--txt-muted);text-transform:uppercase;letter-spacing:0.06em;}
-.form-input{padding:14px 16px;background:var(--bg);border:1.5px solid var(--border2);border-radius:var(--radius-sm);color:var(--txt);font-family:'DM Sans',sans-serif;font-size:0.95rem;outline:none;transition:border-color 0.2s,box-shadow 0.2s;-webkit-appearance:none;-moz-appearance:none;appearance:none;}
+.form-input{padding:14px 16px;background:var(--bg);border:1.5px solid var(--border2);border-radius:var(--radius-sm);color:var(--txt);font-family:'DM Sans',sans-serif;font-size:0.95rem;outline:none;}
 .form-input:focus{border-color:var(--amber);box-shadow:0 0 0 3px var(--amber-dim);}
-.form-input.mono-input{font-family:'DM Mono',monospace;letter-spacing:0.05em;}
-input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(0.5);cursor:pointer;}
-body.light-theme input[type="date"]::-webkit-calendar-picker-indicator,body.light-theme input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(0);cursor:pointer;}
+.form-input.mono-input{font-family:'DM Mono',monospace;}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:12px;padding-right:36px;}
-.form-select option{background:var(--surface);}
-.sheet-actions{display:flex;gap:10px;padding-top:4px;}
-.sheet-actions .btn{flex:1;justify-content:center;padding:15px;}
+.sheet-actions{display:flex;gap:10px;padding-top:4px;}.sheet-actions .btn{flex:1;justify-content:center;}
 
-/* ── LOAD LIST ── */
+/* ── MODAL LOAD CHECKLIST ── */
 .load-list{display:flex;flex-direction:column;gap:6px;max-height:240px;overflow-y:auto;}
-.load-list::-webkit-scrollbar{width:4px;}
-.load-list::-webkit-scrollbar-thumb{background:var(--border2);}
-.load-opt{display:flex;align-items:center;justify-content:space-between;padding:14px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;}
-.load-opt:hover{border-color:var(--border2);}
+.load-opt{display:flex;align-items:center;justify-content:space-between;padding:14px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;}
 .load-opt.sel{border-color:var(--amber);background:var(--amber-dim);}
-.lo-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.lo-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;}
 .load-opt.sel .lo-check{background:var(--amber);border-color:var(--amber);}
-.lo-check-inner{font-size:11px;color:#0a0b0d;opacity:0;transition:opacity 0.15s;}
+.lo-check-inner{font-size:11px;color:#0a0b0d;opacity:0;}
 .load-opt.sel .lo-check-inner{opacity:1;}
-.lo-name{font-weight:500;font-size:0.92rem;}
-.lo-none{color:var(--txt-muted);font-style:italic;}
+.lo-name{font-weight:500;}
 
-/* ── TOAST ── */
-#toast{display:none;position:fixed;bottom:20px;right:20px;padding:14px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--txt);font-size:0.9rem;box-shadow:0 8px 24px rgba(0,0,0,0.3);}
+#toast{display:none;position:fixed;bottom:85px;right:20px;left:20px;padding:14px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--txt);font-size:0.9rem;box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:3000;text-align:center;}
+@media(min-width:640px){#toast{left:auto;width:max-content;max-width:360px;}}
 #toast.show{display:block;}
-#toast.ok{border-left:3px solid var(--green);}
-#toast.err{border-left:3px solid var(--red);}
+#toast.ok{border-left:4px solid var(--green);}
+#toast.err{border-left:4px solid var(--red);}
 </style>
 </head>
 <body>
@@ -282,59 +358,109 @@ body.light-theme input[type="date"]::-webkit-calendar-picker-indicator,body.ligh
 
 <div id="loadingScreen">
   <div class="spinner"></div>
-  <div class="loading-text">Syncing data…</div>
+  <div class="loading-text">Syncing database assets…</div>
 </div>
 
 <div id="app">
   <header class="app-header">
-    <div class="header-brand">
-      <span class="bolt">⚡</span>
-      <h3 class="syne">Saleem Electric</h3>
+    <div class="header-left">
+      <button class="menu-trigger" type="button" onclick="openSideMenu()">☰</button>
+      <div class="header-brand">
+        <span class="bolt">⚡</span>
+        <h3 class="syne">Saleem Electric</h3>
+      </div>
     </div>
     <div class="header-right">
       <button class="sync-btn" type="button" onclick="refresh()" id="syncBtn">
         <span class="sync-icon" id="syncIcon">↻</span>
         <span id="syncLabel">Sync</span>
       </button>
-      <button class="theme-btn" type="button" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
     </div>
   </header>
-  <div class="app-scroll">
-    <div class="summary-section" style="padding-top:16px;">
-      <div class="summary-banner" id="summaryBanner">
-        <div class="summary-top">
-          <span class="summary-label">📊 Live Overview</span>
-          <span class="mono" style="font-size:0.75rem;color:var(--txt-muted)" id="lastSync">Never synced</span>
-        </div>
-        <div class="summary-stats" id="summaryStats">
-          <div class="stat-pill white"><div class="sp-val" id="statMeters">—</div><div class="sp-lbl">Meters</div></div>
-          <div class="stat-pill amber"><div class="sp-val" id="statUnits">—</div><div class="sp-lbl">Total Units</div></div>
-          <div class="stat-pill green"><div class="sp-val" id="statActive">—</div><div class="sp-lbl">Active</div></div>
-          <div class="stat-pill blue"><div class="sp-val" id="statLoads">—</div><div class="sp-lbl">Loads</div></div>
-        </div>
-      </div>
-    </div>
 
-    <div class="toolbar">
-      <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input id="searchBox" placeholder="Search name or reference…" oninput="searchVal=this.value;renderGrid()"/>
-      </div>
-      <div class="toolbar-right">
-        <button class="btn btn-primary" type="button" onclick="openMeterModal('add')">＋ Meter</button>
-        <button class="btn btn-green" type="button" onclick="openAddLoadModal()">＋ Load</button>
-      </div>
+  <div class="drawer-overlay" id="sideMenuOverlay" onclick="closeSideMenu()"></div>
+  <div class="drawer" id="sideMenu">
+    <div class="drawer-header">
+      <div class="drawer-title">Saleem Electric Pro</div>
+      <div class="drawer-subtitle">System Administrator</div>
     </div>
-
-    <div class="filter-bar" id="filterBar">
-      <button class="filter-chip active" type="button" data-filter="all" onclick="setFilter('all')">All</button>
-      <button class="filter-chip" type="button" data-filter="Active" onclick="setFilter('Active')">🟢 Active</button>
-      <button class="filter-chip" type="button" data-filter="Disconnected" onclick="setFilter('Disconnected')">🔴 Disconnected</button>
-      <button class="filter-chip" type="button" data-filter="Defected" onclick="setFilter('Defected')">🟡 Defected</button>
+    <div class="drawer-menu">
+      <button class="drawer-item" type="button" onclick="refresh();closeSideMenu();"><span class="icon">↻</span> Force Synchronize</button>
+      <button class="drawer-item" type="button" onclick="toggleTheme();closeSideMenu();"><span class="icon">🌙</span> Switch Display Mode</button>
+      <div class="drawer-divider"></div>
+      <button class="drawer-item" type="button" onclick="setFilter('all');switchTab('view-meters');closeSideMenu();"><span class="icon">📋</span> View All Meters</button>
+      <button class="drawer-item" type="button" onclick="setFilter('Active');switchTab('view-meters');closeSideMenu();"><span class="icon">🟢</span> Filter Active Only</button>
+      <button class="drawer-item" type="button" onclick="setFilter('Disconnected');switchTab('view-meters');closeSideMenu();"><span class="icon">🔴</span> Filter Disconnected</button>
+      <div class="drawer-divider"></div>
+      <button class="drawer-item" type="button" onclick="location.reload();" style="color:var(--red);"><span class="icon">🔒</span> Lock System Console</button>
     </div>
-
-    <div class="grid" id="grid"></div>
+    <div class="drawer-footer">Engine Version 2.4.0 (Capacitor Environment)</div>
   </div>
+
+  <div style="flex:1;position:relative;overflow:hidden;display:flex;flex-direction:column;">
+
+    <div id="view-meters" class="tab-view active-tab">
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input id="searchBox" placeholder="Search name or reference…" oninput="searchVal=this.value;renderGrid()"/>
+        </div>
+        <div class="toolbar-right">
+          <button class="btn btn-primary" type="button" onclick="openMeterModal('add')">＋ Meter</button>
+        </div>
+      </div>
+
+      <div class="filter-bar" id="filterBar">
+        <button class="filter-chip active" type="button" data-filter="all" onclick="setFilter('all')">All</button>
+        <button class="filter-chip" type="button" data-filter="Active" onclick="setFilter('Active')">🟢 Active</button>
+        <button class="filter-chip" type="button" data-filter="Disconnected" onclick="setFilter('Disconnected')">🔴 Disconnected</button>
+        <button class="filter-chip" type="button" data-filter="Defected" onclick="setFilter('Defected')">🟡 Defected</button>
+      </div>
+
+      <div class="grid" id="grid"></div>
+    </div>
+
+    <div id="view-loads" class="tab-view">
+      <div class="toolbar">
+        <div style="flex:1;"><h3 class="syne" style="font-weight:800;">Feeder & Load Layouts</h3></div>
+        <button class="btn btn-green" type="button" onclick="openAddLoadModal()">＋ New Load</button>
+      </div>
+      <div class="loads-layout" id="loadsTabList"></div>
+    </div>
+
+    <div id="view-stats" class="tab-view">
+      <div class="summary-section">
+        <div class="summary-banner" id="summaryBanner" style="border:none;background:var(--surface);">
+          <div class="summary-top">
+            <span class="summary-label">📊 System Consumption Metrics</span>
+            <span class="mono" style="font-size:0.75rem;color:var(--txt-muted)" id="lastSync">Never synced</span>
+          </div>
+          <div class="summary-stats" id="summaryStats" style="flex-direction:column;gap:12px;">
+            <div class="stat-pill white" style="flex-direction:row;justify-content:space-between;align-items:center;"><div class="sp-lbl">Registered Meters</div><div class="sp-val" id="statMeters">—</div></div>
+            <div class="stat-pill amber" style="flex-direction:row;justify-content:space-between;align-items:center;"><div class="sp-lbl">Aggregate Output Unit Load</div><div class="sp-val" id="statUnits">—</div></div>
+            <div class="stat-pill green" style="flex-direction:row;justify-content:space-between;align-items:center;"><div class="sp-lbl">Online Live Connections</div><div class="sp-val" id="statActive">—</div></div>
+            <div class="stat-pill blue" style="flex-direction:row;justify-content:space-between;align-items:center;"><div class="sp-lbl">Configured Feeder Distribution Loops</div><div class="sp-val" id="statLoads">—</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" type="button" onclick="switchTab('view-meters')" id="nav-view-meters">
+      <div class="nav-icon">⚡</div>
+      <div class="nav-label">Meters</div>
+    </button>
+    <button class="nav-item" type="button" onclick="switchTab('view-loads')" id="nav-view-loads">
+      <div class="nav-icon">🔌</div>
+      <div class="nav-label">Loads</div>
+    </button>
+    <button class="nav-item" type="button" onclick="switchTab('view-stats')" id="nav-view-stats">
+      <div class="nav-icon">📊</div>
+      <div class="nav-label">Analytics</div>
+    </button>
+  </nav>
 </div>
 
 <div class="overlay" id="meterOverlay" onclick="overlayClick(event,'meterOverlay')">
@@ -424,7 +550,6 @@ let meters = [], loads = [], meterMeta = {};
 let searchVal = "", filterStatus = "all", selectedLoadIds = [];
 let isDarkMode = true;
 
-// ─── THEME MANAGEMENT ───
 function initTheme(){
   const saved = localStorage.getItem('theme');
   isDarkMode = saved ? saved === 'dark' : true;
@@ -434,10 +559,8 @@ function initTheme(){
 function applyTheme(){
   if(isDarkMode){
     document.body.classList.remove('light-theme');
-    $('themeBtn').textContent = '🌙 Dark';
   } else {
     document.body.classList.add('light-theme');
-    $('themeBtn').textContent = '☀️ Light';
   }
   localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
 }
@@ -447,7 +570,6 @@ function toggleTheme(){
   applyTheme();
 }
 
-// ─── UTILS ───
 const $ = id => document.getElementById(id);
 function todayISO(){ return new Date().toISOString().split('T')[0]; }
 function nowTime(){ return new Date().toTimeString().slice(0,5); }
@@ -458,9 +580,7 @@ function formatDT(iso){
 }
 function getMeta(ref){ 
   let meta = meterMeta[String(ref).trim()] || {status:'Active',loadId:null,loadSince:null};
-  if(!meta.loadIds){
-    meta.loadIds = meta.loadId ? [meta.loadId] : [];
-  }
+  if(!meta.loadIds){ meta.loadIds = meta.loadId ? [meta.loadId] : []; }
   return meta;
 }
 function getLoadNames(ids){ 
@@ -479,11 +599,32 @@ function toast(msg, type='ok'){
   toastTimer = setTimeout(() => t.className = '', 3000);
 }
 
-function setLoading(on){
-  $('loadingScreen').classList.toggle('show', on);
+function setLoading(on){ $('loadingScreen').classList.toggle('show', on); }
+
+// ─── NATIVE APP INTERACTION ROUTINES ───
+function switchTab(tabId){
+  document.querySelectorAll('.tab-view').forEach(view => view.classList.remove('active-tab'));
+  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+  $(tabId).classList.add('active-tab');
+  $('nav-' + tabId).classList.add('active');
+  window.history.pushState({ activeTabId: tabId }, "");
 }
 
-// ─── AUTH ───
+function openSideMenu(){
+  $('sideMenuOverlay').classList.add('open');
+  $('sideMenu').classList.add('open');
+  window.history.pushState({ sideMenuOpen: true }, "");
+}
+
+function closeSideMenu(fromHistoryPop = false){
+  $('sideMenuOverlay').classList.remove('open');
+  $('sideMenu').classList.remove('open');
+  if(!fromHistoryPop && window.history.state && window.history.state.sideMenuOpen) {
+    window.history.back();
+  }
+}
+
+// ─── INITIALIZATION & ACCESS CONTROL ───
 function login(){
   if($('pass').value === PASS){
     $('lock').style.display='none';
@@ -497,16 +638,14 @@ function login(){
   }
 }
 
-// ─── FILTER ───
 function setFilter(f){
   filterStatus = f;
-  document.querySelectorAll('.filter-chip').forEach(c => {
+  document.querySelectorAll('.filter-bar .filter-chip').forEach(c => {
     c.classList.toggle('active', c.dataset.filter === f);
   });
   renderGrid();
 }
 
-// ─── API ───
 async function apiPost(action, data){
   try{
     await fetch(API+"?action="+action, {method:"POST", body:JSON.stringify(data)});
@@ -531,9 +670,10 @@ async function load(){
     $('lastSync').innerText = "Synced "+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     renderSummary();
     renderGrid();
-    toast("Data synced", "ok");
+    renderLoadsTab();
+    toast("Data synchronized", "ok");
   } catch(e){
-    toast("Sync failed — check connection", "err");
+    toast("Sync failed — network pipeline bottleneck", "err");
   }
   setLoading(false);
 }
@@ -548,7 +688,6 @@ function refresh(){
   });
 }
 
-// ─── RENDER ───
 function renderSummary(){
   const totalUnits = meters.reduce((s,m)=>s+(m.curr-m.last),0);
   const activeCount = meters.filter(m=>getMeta(m.ref).status==='Active').length;
@@ -567,7 +706,7 @@ function renderGrid(){
   });
 
   if(filtered.length === 0){
-    $('grid').innerHTML = `<div class="empty-state"><div class="es-icon">🔌</div><h3>No meters found</h3><p>Try a different search or filter.</p></div>`;
+    $('grid').innerHTML = `<div class="empty-state"><div class="es-icon">🔌</div><h3>No meters configured</h3><p>Try resetting system state parameters.</p></div>`;
     return;
   }
 
@@ -617,9 +756,40 @@ function renderGrid(){
   }).join('');
 }
 
+// ─── RENDER NATIVE LOADS MANAGEMENT VIEW ───
+function renderLoadsTab(){
+  if(loads.length === 0){
+    $('loadsTabList').innerHTML = `<div class="empty-state"><div class="es-icon">🔌</div><h3>No active distribution loops</h3></div>`;
+    return;
+  }
+  $('loadsTabList').innerHTML = loads.map(l=>{
+    const connectedCount = meters.filter(m => {
+      const meta = getMeta(m.ref);
+      const ids = meta.loadIds || (meta.loadId ? [meta.loadId] : []);
+      return ids.includes(l.id);
+    }).length;
+    return `
+    <div class="load-card-row">
+      <div class="load-card-info">
+        <span class="load-card-title">${escHtml(l.name)}</span>
+        <span class="load-card-count">Linked directly to ${connectedCount} loop points</span>
+      </div>
+      <button class="btn btn-danger btn-sm" type="button" onclick="delLoadTabInline('${l.id}','${escHtml(l.name)}')">🗑 Delete</button>
+    </div>`;
+  }).join('');
+}
+
+async function delLoadTabInline(id, name){
+  if(!confirm(`Delete distribution load pool "${name}"? This unlinks all associated meters.`)) return;
+  setLoading(true);
+  await apiPost("deleteLoad", {id});
+  await load();
+  toast("Distribution loop unlinked", "ok");
+}
+
 function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// ─── METER MODAL ───
+// ─── METER MANAGEMENT DIALOGS ───
 function openMeterModal(mode, ref){
   $('meterMode').value = mode;
   if(mode==='add'){
@@ -643,7 +813,7 @@ function closeMeterModal(){ closeOverlay('meterOverlay'); }
 async function saveMeter(){
   const name = $('mName').value.trim();
   const ref = $('mRef').value.trim();
-  if(!name || !ref){ toast("Name and Reference are required","err"); return; }
+  if(!name || !ref){ toast("Fields are empty","err"); return; }
   const last = +$('mLast').value||0, curr = +$('mCurr').value||0;
   const payload = {
     "REFERENCE NO": ref, "Meter Name": name,
@@ -651,49 +821,37 @@ async function saveMeter(){
     "Manual Reading Date": $('mDate').value+"T"+$('mTime').value,
     "Units Consumed": curr-last, ref: $('originalRef').value||ref
   };
-  
-  const mode = $('meterMode').value;
-  const action = (mode === 'edit') ? 'update' : 'create';
-  
   closeMeterModal();
   setLoading(true);
-  await apiPost(action, payload);
+  await apiPost(($('meterMode').value === 'edit') ? 'update' : 'create', payload);
   await load();
-  toast("Meter saved ✓", "ok");
+  toast("Meter array adjusted", "ok");
 }
 
-// ─── DELETE ───
 async function delMeter(ref){
-  const m = meters.find(x=>x.ref==ref);
-  if(!confirm(`Delete "${m?.name || ref}"? This cannot be undone.`)) return;
+  if(!confirm("Delete system node completely?")) return;
   setLoading(true);
   await apiPost("delete", {ref});
   await load();
-  toast("Meter deleted", "ok");
+  toast("Meter dropped", "ok");
 }
 
-// ─── LOAD MODAL ───
-function openAddLoadModal(){
-  $('newLoadName').value='';
-  openOverlay('addLoadOverlay');
-}
+function openAddLoadModal(){ $('newLoadName').value=''; openOverlay('addLoadOverlay'); }
 function closeAddLoadModal(){ closeOverlay('addLoadOverlay'); }
 async function saveNewLoad(){
   const name = $('newLoadName').value.trim();
-  if(!name){ toast("Enter a load name","err"); return; }
-  const id = "load_"+Date.now();
+  if(!name){ toast("Name missing","err"); return; }
   closeAddLoadModal();
   setLoading(true);
-  await apiPost("saveLoad", {id, name});
+  await apiPost("saveLoad", {id: "load_"+Date.now(), name});
   await load();
-  toast("Load added ✓", "ok");
+  toast("New loop structured", "ok");
 }
 
-// ─── CHANGE LOAD ───
 function openChangeLoadModal(ref){
   const meta = getMeta(ref);
   $('changeLoadRef').value = ref;
-  $('changeLoadTitle').innerText = "Assign Load — "+meters.find(m=>m.ref==ref)?.name;
+  $('changeLoadTitle').innerText = "Assign Loop Portfolio";
   selectedLoadIds = meta.loadIds ? [...meta.loadIds] : (meta.loadId ? [meta.loadId] : []);
   $('loadDate').value = (meta.loadSince||'').split('T')[0] || todayISO();
   $('loadTime').value = (meta.loadSince||'').split('T')[1]?.slice(0,5) || nowTime();
@@ -702,40 +860,25 @@ function openChangeLoadModal(ref){
 }
 function toggleSelectLoad(id){
   const idx = selectedLoadIds.indexOf(id);
-  if(idx > -1){
-    selectedLoadIds.splice(idx, 1);
-  } else {
-    selectedLoadIds.push(id);
-  }
+  if(idx > -1){ selectedLoadIds.splice(idx, 1); } else { selectedLoadIds.push(id); }
   renderLoadList();
 }
 function renderLoadList(){
   let html = `
-    <div class="load-opt ${selectedLoadIds.length===0?'sel':''}" onclick="selectedLoadIds=[];renderLoadList()" style="width:100%;">
+    <div class="load-opt ${selectedLoadIds.length===0?'sel':''}" onclick="selectedLoadIds=[];renderLoadList()">
       <div style="display:flex;align-items:center;gap:12px;">
         <div class="lo-check"><span class="lo-check-inner">✓</span></div>
-        <span class="lo-name lo-none">No Load</span>
+        <span class="lo-name" style="opacity:0.5;">No Load Mapping</span>
       </div>
-    </div>
-  `;
+    </div>`;
   html += loads.map(l=>`
-    <div class="load-opt ${selectedLoadIds.includes(l.id)?'sel':''}" onclick="toggleSelectLoad('${l.id}')" style="width:100%;">
-      <div style="display:flex;align-items:center;gap:12px;flex:1;">
+    <div class="load-opt ${selectedLoadIds.includes(l.id)?'sel':''}" onclick="toggleSelectLoad('${l.id}')">
+      <div style="display:flex;align-items:center;gap:12px;">
         <div class="lo-check"><span class="lo-check-inner">✓</span></div>
         <span class="lo-name">${escHtml(l.name)}</span>
       </div>
-      <button class="btn btn-danger btn-sm" type="button" onclick="delLoad(event,'${l.id}','${escHtml(l.name)}')" style="padding:6px 10px;font-size:0.75rem;">🗑</button>
     </div>`).join('');
   $('loadList').innerHTML = html;
-}
-async function delLoad(e, id, name){
-  e.stopPropagation();
-  if(!confirm(`Delete load "${name}"? This will unassign it from all meters.`)) return;
-  closeChangeLoadModal();
-  setLoading(true);
-  await apiPost("deleteLoad", {id});
-  await load();
-  toast("Load deleted", "ok");
 }
 function closeChangeLoadModal(){ closeOverlay('changeLoadOverlay'); }
 async function saveLoadAssignment(){
@@ -744,17 +887,14 @@ async function saveLoadAssignment(){
   closeChangeLoadModal();
   setLoading(true);
   await apiPost("updateMeta", {
-    ref, 
-    status: meta.status||'Active', 
+    ref, status: meta.status||'Active', 
     loadId: selectedLoadIds.length > 0 ? selectedLoadIds[0] : null, 
-    loadIds: selectedLoadIds, 
-    loadSince: $('loadDate').value+"T"+$('loadTime').value
+    loadIds: selectedLoadIds, loadSince: $('loadDate').value+"T"+$('loadTime').value
   });
   await load();
   toast("Load assigned ✓", "ok");
 }
 
-// ─── STATUS MODAL ───
 function openStatusModal(ref){
   $('statusRef').value = ref;
   $('statusSelect').value = getMeta(ref).status || 'Active';
@@ -768,15 +908,14 @@ async function saveStatus(){
   setLoading(true);
   await apiPost("updateMeta", {ref, status: $('statusSelect').value, loadId: meta.loadId, loadIds: meta.loadIds, loadSince: meta.loadSince});
   await load();
-  toast("Status updated ✓", "ok");
+  toast("Status log mapped", "ok");
 }
 
-// ─── OVERLAY HELPERS UPGRADED FOR MOBILE BACK-BUTTON INTERCEPTION ───
+// ─── NATIVE ANDROID SYSTEM INTERCEPTIONS ───
 function openOverlay(id){ 
   if(!$(id).classList.contains('open')) {
     $(id).classList.add('open'); 
     document.body.style.overflow='hidden'; 
-    // Push temporary state into navigation history log to intercept the device back key
     window.history.pushState({ activeOverlayId: id }, "");
   }
 }
@@ -785,7 +924,6 @@ function closeOverlay(id, fromHistoryPop = false){
   if($(id).classList.contains('open')) {
     $(id).classList.remove('open'); 
     document.body.style.overflow=''; 
-    // Synchronize history timeline state if modal was discarded manually inside the layout view
     if(!fromHistoryPop && window.history.state && window.history.state.activeOverlayId === id) {
       window.history.back();
     }
@@ -794,8 +932,11 @@ function closeOverlay(id, fromHistoryPop = false){
 
 function overlayClick(e, id){ if(e.target.id===id) closeOverlay(id); }
 
-// Native application hardware button monitoring link
 window.addEventListener('popstate', function(event) {
+  if ($('sideMenuOverlay').classList.contains('open')) {
+    closeSideMenu(true);
+    return;
+  }
   document.querySelectorAll('.overlay.open').forEach(el => {
     closeOverlay(el.id, true);
   });
