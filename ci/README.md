@@ -29,4 +29,10 @@ Repository → **Settings → Secrets and variables → Actions → New reposito
 - Value: the deploy key for `dev:determined-dotterel-142`
 
 Without the secret the workflow still builds the APK; it just skips the deploy
-step, and you would push functions yourself with `npx convex deploy` locally.
+step, and you would push functions yourself from your PC.
+
+**Important:** `npx convex deploy` deploys to a **production** deployment, so
+the `CONVEX_DEPLOY_KEY` secret should be a *production* deploy key. The key for
+`dev:determined-dotterel-142` is a dev key — use it locally with
+`npx convex dev`, not in CI. Create a production deployment in the Convex
+dashboard when you are ready to ship, and put that key in the secret.

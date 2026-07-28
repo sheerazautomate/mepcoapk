@@ -33,10 +33,60 @@ npx convex dev                       # pushes convex/ and watches for changes
 
 `.env.local` is git-ignored — the deploy key must never be committed.
 
-To push the functions once without watching:
+To push the functions once and exit, instead of watching:
 
 ```bash
-npx convex deploy
+npx convex dev --once
+```
+
+**Note:** the deployment in `.env.local` is a *dev* deployment
+(`dev:determined-dotterel-142`), so pushes go through `convex dev`.
+`npx convex deploy` targets a **production** deployment and is the right
+command only once you create one — that is what the CI workflow uses.
+
+## Running this on your own PC
+
+The Convex migration lives on the branch `arena/019fa692-mepcoapk`.
+
+```bash
+git clone https://github.com/sheerazautomate/mepcoapk.git
+cd mepcoapk
+git checkout arena/019fa692-mepcoapk
+npm install
+```
+
+Create `.env.local` (git-ignored) with your deploy key:
+
+```bash
+cp .env.local.example .env.local
+```
+
+Push the backend functions to Convex, then import the old data:
+
+```bash
+npx convex dev --once                        # creates the tables + indexes
+
+export SUPABASE_URL='https://uukinwggdaxolqkbcjyj.supabase.co'
+export SUPABASE_KEY='<supabase key>'
+node scripts/migrate-from-supabase.mjs --dry-run
+node scripts/migrate-from-supabase.mjs
+```
+
+Check it works by opening `www/index.html` in a browser (password `mepco2026`).
+
+Apply the CI patch, which could not be committed automatically:
+
+```bash
+git apply ci/android-build.workflow.patch
+git commit -am "ci: deploy Convex functions before building the APK"
+```
+
+Then merge into `main`:
+
+```bash
+git push origin arena/019fa692-mepcoapk
+gh pr create --base main --head arena/019fa692-mepcoapk \
+  --title "Migrate backend from Supabase to Convex"
 ```
 
 ## Data model
