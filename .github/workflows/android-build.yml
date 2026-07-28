@@ -1,17 +1,16 @@
-name: Build Android APK
+name: Build and Release Signed APK
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch: # Allows manual trigger from the Actions tab
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     env:
-      # Set this in Settings → Secrets and variables → Actions → Secrets.
       CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
 
     steps:
@@ -26,15 +25,10 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      # Pushes the functions in /convex to the deployment and regenerates
-      # convex/_generated. Skipped automatically if the secret isn't set yet,
-      # so the APK build never breaks on a missing key.
       - name: Deploy Convex Functions
         if: ${{ env.CONVEX_DEPLOY_KEY != '' }}
         run: npx convex deploy -y
 
-      # The web assets read the deployment URL from www/convex-config.js.
-      # Override it here if you keep the URL in a repo variable instead.
       - name: Configure Convex URL
         if: ${{ vars.CONVEX_URL != '' }}
         run: |
@@ -51,14 +45,42 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Build Android App (Unsigned APK)
+      - name: Build Release APK (Unsigned)
         run: |
           cd android
-          ./gradlew assembleDebug
+          ./gradlew assembleRelease
 
-      - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4
+      - name: Decode Keystore
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > release.keystore
+
+      - name: Zipalign and Sign APK
+        run: |
+          BUILD_TOOLS=$(find $ANDROID_HOME/build-tools -maxdepth 1 -type d | sort -V | tail -n 1)
+          UNSIGNED=android/app/build/outputs/apk/release/app-release-unsigned.apk
+          ALIGNED=app-release-aligned.apk
+          SIGNED=mepco-electric-dashboard.apk
+
+          "$BUILD_TOOLS/zipalign" -v -p 4 "$UNSIGNED" "$ALIGNED"
+
+          "$BUILD_TOOLS/apksigner" sign \
+            --ks release.keystore \
+            --ks-pass pass:${{ secrets.ANDROID_KEYSTORE_PASSWORD }} \
+            --ks-key-alias ${{ secrets.ANDROID_KEY_ALIAS }} \
+            --key-pass pass:${{ secrets.ANDROID_KEY_PASSWORD }} \
+            --out "$SIGNED" \
+            "$ALIGNED"
+
+          "$BUILD_TOOLS/apksigner" verify "$SIGNED"
+
+      - name: Clean up keystore
+        if: always()
+        run: rm -f release.keystore
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: Saleem-Electric-Dashboard-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 7
+          tag_name: latest
+          name: Latest Build
+          make_latest: true
+          files: mepco-electric-dashboard.apk
+          body: Automated signed build from commit ${{ github.sha }}
