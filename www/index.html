@@ -340,13 +340,21 @@ input, textarea, select {
 </head>
 <body>
 
-<script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
-  
-  const supabaseUrl = 'https://uukinwggdaxolqkbcjyj.supabase.co'
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1a2lud2dnZGF4b2xxa2JjanlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxOTIyNjQsImV4cCI6MjA5NTc2ODI2NH0.YB4TIyyCrhh79550opFBapIbG8faDsWZcJ4oYW-oWCs' 
-  
-  window.supabase = createClient(supabaseUrl, supabaseKey)
+<!-- Convex backend config. Deployment name only — no secret key ships in the APK. -->
+<script src="convex-config.js"></script>
+<!-- Convex browser client, vendored so the APK works without a CDN. -->
+<script src="vendor/convex-browser.js"></script>
+<script>
+(function(){
+  var url = (window.CONVEX_URL || '').replace(/\/+$/, '');
+  if(!url){ console.error('CONVEX_URL is not configured (see www/convex-config.js)'); return; }
+
+  // Reactive WebSocket client: queries stay live, so edits made on another
+  // device appear here without pressing Sync.
+  window.convexClient = new convex.ConvexClient(url, { unsavedChangesWarning: false });
+  // api.<module>.<function> — matches the files in /convex.
+  window.api = convex.anyApi;
+})();
 </script>
 
 <div id="lock">
@@ -403,7 +411,7 @@ input, textarea, select {
       <div class="drawer-divider"></div>
       <button class="drawer-item" type="button" onclick="location.reload();" style="color:var(--red);"><span class="icon">🔒</span> Lock System Console</button>
     </div>
-    <div class="drawer-footer">Engine Version 2.5.0 (Supabase Backend)</div>
+    <div class="drawer-footer">Engine Version 3.0.0 (Convex Backend)</div>
   </div>
 
   <div style="flex:1;position:relative;overflow:hidden;display:flex;flex-direction:column;">
@@ -653,55 +661,84 @@ function setFilter(f){
   renderGrid();
 }
 
-// ─── SUPABASE BACKEND CALLS ───
+// ─── CONVEX BACKEND CALLS ───
+
+// Fold one `dashboard:getAll` payload into the module-level view state.
+function applySnapshot(data){
+  meters = (data.meters || []).map(m => ({
+    ref: String(m.ref||"").trim(),
+    name: String(m.name||"").trim(),
+    last: Number(m.last)||0,
+    curr: Number(m.curr)||0,
+    date: m.date||null
+  }));
+
+  loads = data.loads || [];
+
+  meterMeta = {};
+  (data.meta || []).forEach(row => {
+    const ids = Array.isArray(row.loadIds) ? row.loadIds : [];
+    meterMeta[String(row.ref).trim()] = {
+      status: row.status || 'Active',
+      loadIds: ids,
+      loadId: ids.length > 0 ? ids[0] : null,
+      loadSince: row.loadSince || null
+    };
+  });
+
+  $('lastSync').innerText = "Synced "+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  renderSummary();
+  renderGrid();
+  renderLoadsTab();
+}
+
+// Live subscription: Convex pushes a new snapshot whenever the data changes,
+// so no manual refresh is needed after a mutation or an edit on another device.
+let liveSubscribed = false;
+function subscribeLive(){
+  if(liveSubscribed) return;
+  liveSubscribed = true;
+  window.convexClient.onUpdate(window.api.dashboard.getAll, {}, (data) => {
+    applySnapshot(data);
+    setLoading(false);
+  }, (err) => {
+    console.error(err);
+    setLoading(false);
+    toast("Live sync interrupted — retrying", "err");
+  });
+}
+
+// One-shot fetch, used for the initial paint and the manual Sync button.
 async function load(){
   setLoading(true);
   try{
-    const [billsRes, loadsRes, metaRes] = await Promise.all([
-      window.supabase.from('bills').select('*'),
-      window.supabase.from('loads').select('*'),
-      window.supabase.from('meta').select('*')
-    ]);
-
-    if(billsRes.error) throw billsRes.error;
-    if(loadsRes.error) throw loadsRes.error;
-    if(metaRes.error) throw metaRes.error;
-
-    meters = (billsRes.data || []).map(row => ({
-      ref: String(row.reference_no||"").trim(),
-      name: String(row.meter_name||"").trim(),
-      last: Number(row.last_month_mepco_reading)||0,
-      curr: Number(row.manual_reading)||0,
-      date: row.manual_reading_date||null
-    }));
-
-    loads = loadsRes.data || [];
-
-    meterMeta = {};
-    (metaRes.data || []).forEach(row => {
-      let parsedLoadIds = [];
-      try {
-         parsedLoadIds = typeof row.load_ids === 'string' ? JSON.parse(row.load_ids) : (row.load_ids || []);
-      } catch(e) {}
-      
-      meterMeta[String(row.ref).trim()] = {
-        status: row.status || 'Active',
-        loadIds: parsedLoadIds,
-        loadId: parsedLoadIds.length > 0 ? parsedLoadIds[0] : null,
-        loadSince: row.load_since || null
-      };
-    });
-
-    $('lastSync').innerText = "Synced "+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-    renderSummary();
-    renderGrid();
-    renderLoadsTab();
+    const data = await window.convexClient.query(window.api.dashboard.getAll, {});
+    applySnapshot(data);
+    subscribeLive();
     toast("Data synchronized", "ok");
   } catch(e){
     console.error(e);
     toast("Sync failed — network pipeline bottleneck", "err");
   }
   setLoading(false);
+}
+
+// Every write goes through here so failures surface consistently.
+async function runMutation(fn, args, okMsg, errMsg){
+  setLoading(true);
+  try{
+    const result = await window.convexClient.mutation(fn, args);
+    if(okMsg) toast(okMsg, "ok");
+    return result;
+  } catch(e){
+    console.error(e);
+    toast(errMsg || "Operation failed", "err");
+    return null;
+  } finally {
+    // The live subscription repaints on its own; refresh anyway when it is
+    // not yet established (e.g. first write right after a cold start).
+    if(!liveSubscribed) await load(); else setLoading(false);
+  }
 }
 
 function refresh(){
@@ -806,10 +843,8 @@ function renderLoadsTab(){
 
 async function delLoadTabInline(id, name){
   if(!confirm(`Delete distribution load pool "${name}"? This unlinks all associated meters.`)) return;
-  setLoading(true);
-  await window.supabase.from('loads').delete().eq('id', id);
-  await load();
-  toast("Distribution loop unlinked", "ok");
+  await runMutation(window.api.loads.remove, { load_id: id },
+    "Distribution loop unlinked", "Error unlinking loop");
 }
 
 function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -841,42 +876,28 @@ async function saveMeter(){
   const ref = $('mRef').value.trim();
   if(!name || !ref){ toast("Fields are empty","err"); return; }
   const last = +$('mLast').value||0, curr = +$('mCurr').value||0;
-  
+
   const payload = {
     reference_no: ref,
     meter_name: name,
     last_month_mepco_reading: last,
     manual_reading: curr,
     manual_reading_date: $('mDate').value+"T"+$('mTime').value,
-    units_consumed: curr-last
+    previous_reference_no: $('meterMode').value === 'edit' ? ($('originalRef').value || null) : null
   };
-  
+
   closeMeterModal();
-  setLoading(true);
-  
-  let res;
-  if($('meterMode').value === 'edit') {
-    const oldRef = $('originalRef').value;
-    if(oldRef && oldRef !== ref) {
-      await window.supabase.from('bills').delete().eq('reference_no', oldRef);
-    }
-  }
-  
-  res = await window.supabase.from('bills').upsert(payload);
-  
-  if(res.error) toast("Failed to adjust meter", "err");
-  else toast("Meter array adjusted", "ok");
-  
-  await load();
+
+  // Convex runs the delete-old-ref + upsert in one atomic mutation.
+  await runMutation(window.api.meters.upsert, payload,
+    "Meter array adjusted", "Failed to adjust meter");
 }
 
 async function delMeter(ref){
   if(!confirm("Delete system node completely?")) return;
-  setLoading(true);
-  await window.supabase.from('bills').delete().eq('reference_no', ref);
-  await window.supabase.from('meta').delete().eq('ref', ref);
-  await load();
-  toast("Meter dropped", "ok");
+  // Single mutation removes the bill row and its meta row together.
+  await runMutation(window.api.meters.remove, { reference_no: ref },
+    "Meter dropped", "Failed to drop meter");
 }
 
 function openAddLoadModal(){ $('newLoadName').value=''; openOverlay('addLoadOverlay'); }
@@ -886,12 +907,9 @@ async function saveNewLoad(){
   const name = $('newLoadName').value.trim();
   if(!name){ toast("Name missing","err"); return; }
   closeAddLoadModal();
-  setLoading(true);
   const newId = "load_"+Date.now();
-  const {error} = await window.supabase.from('loads').insert({ id: newId, name });
-  await load();
-  if(error) toast("Error structuring loop", "err");
-  else toast("New loop structured", "ok");
+  await runMutation(window.api.loads.create, { load_id: newId, name },
+    "New loop structured", "Error structuring loop");
 }
 
 function openChangeLoadModal(ref){
@@ -930,21 +948,14 @@ function closeChangeLoadModal(){ closeOverlay('changeLoadOverlay'); }
 
 async function saveLoadAssignment(){
   const ref = $('changeLoadRef').value;
-  const meta = getMeta(ref);
   closeChangeLoadModal();
-  setLoading(true);
-  
-  const payload = {
+
+  // Convex stores load_ids as a native array — no JSON.stringify round-trip.
+  await runMutation(window.api.meta.setLoads, {
     ref: ref,
-    status: meta.status || 'Active',
-    load_ids: JSON.stringify(selectedLoadIds),
+    load_ids: selectedLoadIds,
     load_since: $('loadDate').value+"T"+$('loadTime').value
-  };
-  
-  const {error} = await window.supabase.from('meta').upsert(payload);
-  await load();
-  if(error) toast("Error mapping load", "err");
-  else toast("Load assigned ✓", "ok");
+  }, "Load assigned ✓", "Error mapping load");
 }
 
 function openStatusModal(ref){
@@ -956,22 +967,12 @@ function closeStatusModal(){ closeOverlay('statusOverlay'); }
 
 async function saveStatus(){
   const ref = $('statusRef').value;
-  const meta = getMeta(ref);
   const newStatus = $('statusSelect').value;
   closeStatusModal();
-  setLoading(true);
-  
-  const payload = {
-    ref: ref,
-    status: newStatus,
-    load_ids: JSON.stringify(meta.loadIds || []),
-    load_since: meta.loadSince
-  };
-  
-  const {error} = await window.supabase.from('meta').upsert(payload);
-  await load();
-  if(error) toast("Error mapping status", "err");
-  else toast("Status log mapped", "ok");
+
+  // Status-only patch: the load assignment is left untouched server-side.
+  await runMutation(window.api.meta.setStatus, { ref: ref, status: newStatus },
+    "Status log mapped", "Error mapping status");
 }
 
 // ─── NATIVE ANDROID SYSTEM INTERCEPTIONS ───
