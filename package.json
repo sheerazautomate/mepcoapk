@@ -3,9 +3,18 @@
   "version": "1.0.0",
   "description": "Saleem Electricity Dashboard",
   "main": "index.html",
+  "type": "module",
+  "scripts": {
+    "dev": "convex dev",
+    "deploy": "convex deploy",
+    "codegen": "convex codegen",
+    "vendor:convex": "cp node_modules/convex/dist/browser.bundle.js www/vendor/convex-browser.js",
+    "migrate:supabase": "node scripts/migrate-from-supabase.mjs"
+  },
   "dependencies": {
     "@capacitor/android": "^6.0.0",
-    "@capacitor/core": "^6.0.0"
+    "@capacitor/core": "^6.0.0",
+    "convex": "^1.42.3"
   },
   "devDependencies": {
     "@capacitor/cli": "^6.0.0"
