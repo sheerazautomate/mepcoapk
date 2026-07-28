@@ -10,6 +10,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      # Set this in Settings → Secrets and variables → Actions → Secrets.
+      CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
+
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
@@ -18,10 +22,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          # Removed the strict cache check to prevent the missing lockfile error
 
       - name: Install Dependencies
         run: npm install
+
+      # Pushes the functions in /convex to the deployment and regenerates
+      # convex/_generated. Skipped automatically if the secret isn't set yet,
+      # so the APK build never breaks on a missing key.
+      - name: Deploy Convex Functions
+        if: ${{ env.CONVEX_DEPLOY_KEY != '' }}
+        run: npx convex deploy -y
+
+      # The web assets read the deployment URL from www/convex-config.js.
+      # Override it here if you keep the URL in a repo variable instead.
+      - name: Configure Convex URL
+        if: ${{ vars.CONVEX_URL != '' }}
+        run: |
+          echo "window.CONVEX_URL = \"${{ vars.CONVEX_URL }}\";" > www/convex-config.js
 
       - name: Initialize Android Platform
         run: |
